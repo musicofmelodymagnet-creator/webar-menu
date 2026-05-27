@@ -12,9 +12,9 @@ export default function NewDishPage() {
   const [slug, setSlug] = useState("");
   const [slugManual, setSlugManual] = useState(false);
   const [glbFile, setGlbFile] = useState<File | null>(null);
-  const [usdzFile, setUsdzFile] = useState<File | null>(null);
   const [order, setOrder] = useState("0");
   const [saving, setSaving] = useState(false);
+  const [savingStatus, setSavingStatus] = useState("");
   const [error, setError] = useState("");
 
   function toSlug(v: string) {
@@ -23,7 +23,7 @@ export default function NewDishPage() {
   function handleName(v: string) { setName(v); if (!slugManual) setSlug(toSlug(v)); }
   function handleSlug(v: string) { setSlugManual(true); setSlug(toSlug(v)); }
 
-  async function uploadFile(file: File, type: "model" | "usdz") {
+  async function uploadFile(file: File, type: "model" | "logo") {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("type", type);
@@ -36,9 +36,25 @@ export default function NewDishPage() {
     e.preventDefault();
     if (!glbFile) { setError("A .glb model file is required"); return; }
     setSaving(true); setError("");
+
     try {
+      setSavingStatus("Uploading 3D model…");
       const modelUrl = await uploadFile(glbFile, "model");
-      const usdzUrl = usdzFile ? await uploadFile(usdzFile, "usdz") : null;
+
+      setSavingStatus("Converting for iOS AR…");
+      let usdzUrl: string | null = null;
+      const { convertGlbToUsdz } = await import("@/lib/glb-to-usdz");
+      const usdzBuffer = await convertGlbToUsdz(glbFile);
+      if (usdzBuffer) {
+        const usdzFile = new File(
+          [usdzBuffer],
+          glbFile.name.replace(/\.glb$/i, ".usdz"),
+          { type: "model/vnd.usdz+zip" }
+        );
+        usdzUrl = await uploadFile(usdzFile, "model");
+      }
+
+      setSavingStatus("Saving…");
       const res = await fetch(`/api/admin/restaurants/${id}/dishes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,47 +65,9 @@ export default function NewDishPage() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setSaving(false);
+      setSavingStatus("");
     }
   }
-
-  const FileUploadField = ({ label, accept, file, onChange, hint }: { label: string; accept: string; file: File | null; onChange: (f: File) => void; hint?: string }) => (
-    <div>
-      <label style={{ display: "block", color: "oklch(0.65 0.007 252)", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.5rem" }}>{label}</label>
-      <label style={{ display: "block" }}>
-        <div style={{
-          border: `1px dashed ${file ? "oklch(0.58 0.22 260)" : "oklch(0.33 0.006 252)"}`,
-          borderRadius: 8,
-          padding: "1.25rem",
-          textAlign: "center",
-          cursor: "pointer",
-          background: file ? "oklch(0.58 0.22 260 / 0.06)" : "oklch(0.23 0.007 252)",
-          transition: "border-color 120ms, background 120ms",
-        }}>
-          {file ? (
-            <div>
-              <div style={{ color: "oklch(0.70 0.15 260)", fontSize: "0.875rem", fontWeight: 500 }}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: "inline", marginRight: 6, verticalAlign: -2 }}><path d="M2 2h6l3 3v7H2V2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/><path d="M8 2v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>
-                {file.name}
-              </div>
-              <div style={{ color: "oklch(0.50 0.006 252)", fontSize: "0.75rem", marginTop: 4 }}>
-                {(file.size / 1024 / 1024).toFixed(2)} MB
-              </div>
-            </div>
-          ) : (
-            <div>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ margin: "0 auto 0.5rem", display: "block" }}>
-                <path d="M10 3v11M5 8l5-5 5 5" stroke="oklch(0.48 0.007 252)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3 15h14" stroke="oklch(0.40 0.006 252)" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-              <div style={{ color: "oklch(0.55 0.007 252)", fontSize: "0.8125rem" }}>Click to upload</div>
-              {hint && <div style={{ color: "oklch(0.44 0.006 252)", fontSize: "0.75rem", marginTop: 3 }}>{hint}</div>}
-            </div>
-          )}
-        </div>
-        <input type="file" accept={accept} style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) onChange(f); }} />
-      </label>
-    </div>
-  );
 
   return (
     <AdminShell>
@@ -126,31 +104,59 @@ export default function NewDishPage() {
             <input className="field" type="number" value={order} onChange={e => setOrder(e.target.value)} style={{ maxWidth: 120 }} />
           </div>
 
-          <FileUploadField
-            label="3D Model (.glb) *"
-            accept=".glb"
-            file={glbFile}
-            onChange={setGlbFile}
-            hint=".glb format, recommended &lt;15 MB"
-          />
-
-          <FileUploadField
-            label="iOS Model (.usdz) — optional"
-            accept=".usdz"
-            file={usdzFile}
-            onChange={setUsdzFile}
-            hint="Enables native iOS Quick Look AR"
-          />
+          <div>
+            <label style={{ display: "block", color: "oklch(0.65 0.007 252)", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.5rem" }}>
+              3D Model (.glb) <span style={{ color: "oklch(0.62 0.22 27)" }}>*</span>
+            </label>
+            <label style={{ display: "block" }}>
+              <div style={{
+                border: `1px dashed ${glbFile ? "oklch(0.58 0.22 260)" : "oklch(0.33 0.006 252)"}`,
+                borderRadius: 8,
+                padding: "1.25rem",
+                textAlign: "center",
+                cursor: "pointer",
+                background: glbFile ? "oklch(0.58 0.22 260 / 0.06)" : "oklch(0.23 0.007 252)",
+                transition: "border-color 120ms, background 120ms",
+              }}>
+                {glbFile ? (
+                  <div>
+                    <div style={{ color: "oklch(0.70 0.15 260)", fontSize: "0.875rem", fontWeight: 500 }}>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ display: "inline", marginRight: 6, verticalAlign: -2 }}><path d="M2 2h6l3 3v7H2V2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/><path d="M8 2v3h3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>
+                      {glbFile.name}
+                    </div>
+                    <div style={{ color: "oklch(0.50 0.006 252)", fontSize: "0.75rem", marginTop: 4 }}>
+                      {(glbFile.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                    <div style={{ color: "oklch(0.55 0.14 145)", fontSize: "0.75rem", marginTop: 4 }}>
+                      USDZ for iOS will be generated automatically
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ margin: "0 auto 0.5rem", display: "block" }}>
+                      <path d="M10 3v11M5 8l5-5 5 5" stroke="oklch(0.48 0.007 252)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 15h14" stroke="oklch(0.40 0.006 252)" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <div style={{ color: "oklch(0.55 0.007 252)", fontSize: "0.8125rem" }}>Click to upload</div>
+                    <div style={{ color: "oklch(0.44 0.006 252)", fontSize: "0.75rem", marginTop: 3 }}>.glb format · USDZ auto-generated for iOS</div>
+                  </div>
+                )}
+              </div>
+              <input type="file" accept=".glb" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) setGlbFile(f); }} />
+            </label>
+          </div>
 
           {error && <p style={{ color: "oklch(0.62 0.22 27)", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
 
-          <div style={{ display: "flex", gap: "0.75rem", paddingTop: "0.25rem" }}>
+          <div style={{ display: "flex", gap: "0.75rem", paddingTop: "0.25rem", alignItems: "center" }}>
             <button type="submit" disabled={saving} style={{ padding: "0.5625rem 1.125rem", background: saving ? "oklch(0.44 0.15 260)" : "oklch(0.58 0.22 260)", border: "none", borderRadius: 6, color: "oklch(0.97 0.003 260)", fontSize: "0.875rem", fontWeight: 600, cursor: saving ? "not-allowed" : "pointer", letterSpacing: "-0.01em" }}>
-              {saving ? "Uploading…" : "Save dish"}
+              {saving ? savingStatus || "Working…" : "Save dish"}
             </button>
-            <Link href={`/admin/restaurants/${id}`} style={{ display: "inline-flex", alignItems: "center", padding: "0.5625rem 1rem", border: "1px solid oklch(0.33 0.006 252)", borderRadius: 6, color: "oklch(0.65 0.007 252)", fontSize: "0.875rem", textDecoration: "none" }}>
-              Cancel
-            </Link>
+            {!saving && (
+              <Link href={`/admin/restaurants/${id}`} style={{ display: "inline-flex", alignItems: "center", padding: "0.5625rem 1rem", border: "1px solid oklch(0.33 0.006 252)", borderRadius: 6, color: "oklch(0.65 0.007 252)", fontSize: "0.875rem", textDecoration: "none" }}>
+                Cancel
+              </Link>
+            )}
           </div>
         </form>
       </div>
