@@ -46,7 +46,8 @@ COPY --from=builder /app/package.json                     ./package.json
 
 # Persistent storage directories (mounted as volumes)
 RUN mkdir -p /data public/uploads/models public/uploads/logos && \
-    chown -R nextjs:nodejs /data public/uploads
+    chown -R nextjs:nodejs /data public/uploads && \
+    touch /app/.env && chown nextjs:nodejs /app/.env
 
 COPY --chown=nextjs:nodejs docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
