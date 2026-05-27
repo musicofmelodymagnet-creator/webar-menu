@@ -45,9 +45,14 @@ yarn-error.log*
 # user uploads (stored in Docker volume on server)
 /public/uploads/
 
-# playwright screenshots
+# playwright screenshots and local test artifacts
 *.png
 .playwright-mcp/
+
+# documents
+*.docx
+*.doc
+*.pdf
 
 # vercel
 .vercel
