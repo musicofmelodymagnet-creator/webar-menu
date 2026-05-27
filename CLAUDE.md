@@ -12,12 +12,13 @@ Guest scans QR → browser opens → 3D dish appears on table via AR.
 
 | Layer | Technology | Reason |
 |---|---|---|
-| Framework | Next.js 14 (App Router) + TypeScript | SSR, routing, API routes in one |
+| Framework | Next.js 16 (App Router) + TypeScript | SSR, routing, API routes in one |
 | Database | Prisma + SQLite (prototype) | Zero-config, easy migrate to Postgres |
 | AR/3D renderer | `<model-viewer>` (Google) | Handles GLB (Android) + USDZ (iOS QuickLook) natively, no 8th Wall license needed |
-| Styling | Tailwind CSS | Fast, responsive |
+| Styling | Tailwind CSS + inline styles (landing) | Fast, responsive |
 | Admin Auth | NextAuth.js (credentials) | Simple single-owner login |
 | File uploads | Built-in Next.js API + formidable | 3D models + logos saved to /public/uploads |
+| Fonts | Syne (display) + DM Sans (body) via next/font | CSS vars `--font-display`, `--font-body` |
 
 ### AR Anti-shake
 WebXR hit-test results fed through an **exponential moving average (EMA)** low-pass filter before being applied to model position/rotation. Alpha ≈ 0.12 (tune in `src/lib/ar-smoother.ts`). Fallback to 3D mode after 5 s if no plane detected.
@@ -103,10 +104,14 @@ model Dish {
 
 - **Isolation**: root `/` returns 404. No nav links on guest pages. Router enforces `/r/[slug]/...` prefix.
 - **model-viewer AR**: use `ar ar-modes="webxr scene-viewer quick-look"` attribute order — WebXR first for Android Chrome, Quick Look for iOS Safari.
+- **model-viewer lighting**: always set `environment-image="neutral" exposure="1.8" shadow-intensity="0"` — without these, mobile Chrome renders models very dark.
 - **Anti-shake**: wrap WebXR `XRHitTestResult` pose with EMA before calling `object.position.set()`. See `src/lib/ar-smoother.ts`.
 - **Stop-list**: `visible: false` on a dish excludes it from public API but keeps model file intact.
 - **Uploads**: store in `public/uploads/models/` and `public/uploads/logos/`. In production, replace with S3/R2.
 - **Admin password**: stored as `ADMIN_PASSWORD_HASH` (bcrypt) in `.env`. Default seed in `prisma/seed.ts`.
+- **Landing page theme**: dark/light toggle via `html.light` class. All colors in CSS variables (`--c-bg`, `--c-accent`, etc.) defined in `page.tsx` `<style>` tag. Anti-FOUC inline script in `layout.tsx` reads `localStorage('theme')` before hydration. Phone screen internals in hero are hardcoded dark (they simulate a camera view and must not change with theme).
+- **Scroll animations**: CSS-only scroll-driven parallax on phone mockup (`animation-timeline: scroll()`) — disabled on mobile via `@media (min-width: 921px)` to prevent premature fade. Entrance animations via CSS keyframes with stagger delays. Scroll-reveal via `IntersectionObserver` in `ScrollReveal` component.
+- **Inline style + media query gotcha**: never use `display: flex/block` as an inline style on elements that need to be hidden by a media query — inline styles win over class selectors. Move layout `display` into the CSS class instead.
 
 ---
 
@@ -125,8 +130,8 @@ ar-menu/
 │       └── logos/
 └── src/
     ├── app/
-    │   ├── layout.tsx
-    │   ├── page.tsx                  (404 stub)
+    │   ├── layout.tsx                (Syne + DM Sans fonts; anti-FOUC theme script)
+    │   ├── page.tsx                  (landing page — dark/light, CSS vars, scroll animations)
     │   ├── r/[slug]/
     │   │   ├── page.tsx              (redirect to first dish)
     │   │   └── [dish_slug]/page.tsx  (WebAR viewer)
@@ -144,6 +149,9 @@ ar-menu/
     ├── components/
     │   ├── ar-viewer.tsx             (model-viewer wrapper + AR/3D toggle)
     │   ├── dish-slider.tsx           (swipeable footer carousel)
+    │   ├── landing-model.tsx         (model-viewer for landing hero; neutral lighting)
+    │   ├── scroll-reveal.tsx         (IntersectionObserver entrance animation)
+    │   ├── theme-toggle.tsx          (sun/moon toggle; writes html.light class + localStorage)
     │   └── admin/                    (admin UI components)
     ├── lib/
     │   ├── prisma.ts                 (Prisma client singleton)
