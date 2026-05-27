@@ -544,7 +544,6 @@ export default function LandingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
             <Link href="/r/test" style={{ color: c.muted, fontSize: "0.8125rem", textDecoration: "none", letterSpacing: "-0.01em" }}>Live demo</Link>
             <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: c.muted, fontSize: "0.8125rem", textDecoration: "none", letterSpacing: "-0.01em" }}>{CONTACT_EMAIL}</a>
-            <Link href="/admin" style={{ color: c.dim, fontSize: "0.75rem", textDecoration: "none", letterSpacing: "-0.01em" }}>Admin</Link>
           </div>
         </div>
       </footer>
