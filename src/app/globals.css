@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Admin palette */
+  --color-sidebar:      oklch(0.17 0.010 252);
+  --color-bg:           oklch(0.21 0.008 252);
+  --color-surface:      oklch(0.27 0.007 252);
+  --color-border:       oklch(0.33 0.006 252);
+  --color-text:         oklch(0.95 0.004 252);
+  --color-muted:        oklch(0.60 0.008 252);
+  --color-accent:       oklch(0.58 0.22  260);
+  --color-accent-dim:   oklch(0.44 0.15  260);
+  --color-danger:       oklch(0.62 0.22   27);
+  --color-success:      oklch(0.60 0.18  145);
+
+  /* Guest palette */
+  --color-g-bg:         oklch(0.10 0.005  35);
+  --color-g-surface:    oklch(0.14 0.006  35);
+  --color-g-accent:     oklch(0.67 0.19   48);
+  --color-g-text:       oklch(0.96 0.004  48);
+  --color-g-muted:      oklch(0.52 0.010  48);
+  --color-g-border:     oklch(0.22 0.006  35);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar but keep scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Dish slider snap */
+.dish-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.dish-slider::-webkit-scrollbar { display: none; }
+.dish-slide { scroll-snap-align: center; flex-shrink: 0; }
+
+/* model-viewer fills parent */
+model-viewer { width: 100%; height: 100%; }
+
+/* Input reset for admin */
+.field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: oklch(0.23 0.007 252);
+  border: 1px solid oklch(0.33 0.006 252);
+  border-radius: 6px;
+  color: oklch(0.95 0.004 252);
+  font-size: 0.875rem;
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+  outline: none;
+}
+.field:focus {
+  border-color: oklch(0.58 0.22 260);
+  box-shadow: 0 0 0 3px oklch(0.58 0.22 260 / 0.18);
+}
+.field::placeholder { color: oklch(0.50 0.006 252); }
+
+/* Toggle switch */
+.toggle { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  width: 36px; height: 20px;
+  background: oklch(0.33 0.006 252);
+  border-radius: 10px;
+  transition: background 150ms ease-out;
+}
+.toggle input:checked ~ .toggle-track { background: oklch(0.58 0.22 260); }
+.toggle-thumb {
+  position: absolute;
+  left: 3px;
+  width: 14px; height: 14px;
+  background: oklch(0.95 0.004 252);
+  border-radius: 50%;
+  transition: transform 150ms ease-out;
+  pointer-events: none;
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+/* Hide model-viewer's built-in AR button — we use our own toggle */
+model-viewer::part(default-ar-button) { display: none !important; }
+/* Prevent model-viewer canvas from blocking our overlay buttons */
+model-viewer { --poster-color: transparent; }

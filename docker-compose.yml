@@ -1,0 +1,22 @@
+services:
+  webar-menu:
+    build: .
+    image: webar-menu:latest
+    container_name: webar-menu
+    ports:
+      - "3006:3006"
+    volumes:
+      - webar_db:/data
+      - webar_uploads:/app/public/uploads
+    env_file:
+      - .env.production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3006/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  webar_db:
+  webar_uploads:
