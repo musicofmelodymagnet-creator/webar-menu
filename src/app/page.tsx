@@ -251,6 +251,7 @@ export default function LandingPage() {
         .feat-grid  { display: grid; grid-template-columns: 1fr 1fr; }
         .price-row  { display: grid; grid-template-columns: 230px 1fr 190px; gap: 2.5rem; align-items: start; }
         .nav-links-d { display: flex; align-items: center; gap: 1.75rem; }
+        .ha-phone-wrap { display: flex; justify-content: center; align-items: center; }
 
         @media (max-width: 920px) {
           .nav-links-d { display: none; }
@@ -419,7 +420,7 @@ export default function LandingPage() {
             </div>
 
             {/* ── Phone mockup ── */}
-            <div className="ha-phone-wrap" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div className="ha-phone-wrap">
               {/* scroll-driven wrapper: outer element gets parallax */}
               <div className="ha-phone-scroll" style={{ position: "relative" }}>
                 {/* entrance animation: inner element slides from right */}
