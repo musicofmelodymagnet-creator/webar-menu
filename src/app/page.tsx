@@ -181,14 +181,16 @@ export default function LandingPage() {
 
         /* ── Scroll-driven parallax (Chrome 115+, Edge, Safari 18+) */
         @supports (animation-timeline: scroll()) {
-          @keyframes phonescroll {
-            from { transform: translateY(0); opacity: 1; }
-            to   { transform: translateY(-65px); opacity: 0.12; }
-          }
-          .ha-phone-scroll {
-            animation: phonescroll linear both;
-            animation-timeline: scroll(root block);
-            animation-range: 15vh 65vh;
+          @media (min-width: 921px) {
+            @keyframes phonescroll {
+              from { transform: translateY(0); opacity: 1; }
+              to   { transform: translateY(-65px); opacity: 0.12; }
+            }
+            .ha-phone-scroll {
+              animation: phonescroll linear both;
+              animation-timeline: scroll(root block);
+              animation-range: 15vh 65vh;
+            }
           }
         }
 
@@ -256,7 +258,6 @@ export default function LandingPage() {
         @media (max-width: 920px) {
           .nav-links-d { display: none; }
           .hero-grid   { grid-template-columns: 1fr; gap: 3rem; }
-          .ha-phone-wrap { display: none; }
           .feat-grid   { grid-template-columns: 1fr; }
           .price-row   { grid-template-columns: 1fr; gap: 1.25rem; }
         }
