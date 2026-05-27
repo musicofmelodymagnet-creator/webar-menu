@@ -6,7 +6,9 @@
       "Skill(impeccable:*)",
       "Bash(node .claude/skills/impeccable/scripts/load-context.mjs)",
       "Bash(node \"C:/Users/vety/.claude/skills/impeccable/scripts/load-context.mjs\")",
-      "mcp__plugin_playwright_playwright__browser_take_screenshot"
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(npm run *)",
+      "mcp__plugin_playwright_playwright__browser_console_messages"
     ]
   }
 }

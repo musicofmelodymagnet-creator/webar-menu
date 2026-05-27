@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LandingModel } from "@/components/landing-model";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 // Update this to any active dish GLB on the server
 const DEMO_GLB = "/uploads/models/350b84c910b32ff7ee35966d.glb";
@@ -8,20 +9,20 @@ const DEMO_GLB = "/uploads/models/350b84c910b32ff7ee35966d.glb";
 const CONTACT_EMAIL = "admin@verunsky.pp.ua";
 
 const c = {
-  bg:        "oklch(0.09 0.005 35)",
-  surf:      "oklch(0.13 0.006 35)",
-  surf2:     "oklch(0.18 0.006 35)",
-  border:    "oklch(0.22 0.006 35)",
-  borderHi:  "oklch(0.30 0.005 35)",
-  text:      "oklch(0.95 0.004 48)",
-  sub:       "oklch(0.76 0.006 48)",
-  muted:     "oklch(0.52 0.008 48)",
-  dim:       "oklch(0.34 0.005 48)",
-  accent:    "oklch(0.67 0.19 48)",
-  accentLo:  "oklch(0.67 0.19 48 / 0.08)",
-  accentMid: "oklch(0.67 0.19 48 / 0.20)",
-  accentBrd: "oklch(0.67 0.19 48 / 0.35)",
-  base:      "oklch(0.06 0.003 35)",
+  bg:        "var(--c-bg)",
+  surf:      "var(--c-surf)",
+  surf2:     "var(--c-surf2)",
+  border:    "var(--c-border)",
+  borderHi:  "var(--c-borderHi)",
+  text:      "var(--c-text)",
+  sub:       "var(--c-sub)",
+  muted:     "var(--c-muted)",
+  dim:       "var(--c-dim)",
+  accent:    "var(--c-accent)",
+  accentLo:  "var(--c-accentLo)",
+  accentMid: "var(--c-accentMid)",
+  accentBrd: "var(--c-accentBrd)",
+  base:      "var(--c-base)",
 } as const;
 
 const fd = "var(--font-display, system-ui, sans-serif)";
@@ -107,6 +108,59 @@ export default function LandingPage() {
   return (
     <div style={{ background: c.bg, minHeight: "100vh", color: c.text, fontFamily: fb }}>
       <style>{`
+        /* ── Theme: dark (default) ──────────────────────────────── */
+        :root {
+          --c-bg:        oklch(0.09 0.005 35);
+          --c-surf:      oklch(0.13 0.006 35);
+          --c-surf2:     oklch(0.18 0.006 35);
+          --c-border:    oklch(0.22 0.006 35);
+          --c-borderHi:  oklch(0.30 0.005 35);
+          --c-text:      oklch(0.95 0.004 48);
+          --c-sub:       oklch(0.76 0.006 48);
+          --c-muted:     oklch(0.52 0.008 48);
+          --c-dim:       oklch(0.34 0.005 48);
+          --c-accent:    oklch(0.67 0.19 48);
+          --c-accentLo:  oklch(0.67 0.19 48 / 0.08);
+          --c-accentMid: oklch(0.67 0.19 48 / 0.20);
+          --c-accentBrd: oklch(0.67 0.19 48 / 0.35);
+          --c-accentHi:  oklch(0.67 0.19 48 / 0.55);
+          --c-base:      oklch(0.06 0.003 35);
+          --c-nav:       oklch(0.09 0.005 35 / 0.90);
+          --c-sect:      oklch(0.095 0.005 35);
+          --c-mq:        oklch(0.10 0.005 35);
+          --c-glow-a:    oklch(0.67 0.19 48 / 0.065);
+          --c-glow-b:    oklch(0.67 0.19 48 / 0.04);
+          --c-glow-ph:   oklch(0.67 0.19 48 / 0.15);
+          --c-ph-shadow: oklch(0.04 0.002 35 / 0.8);
+          --c-ph-ring:   oklch(0.27 0.006 35 / 0.5);
+        }
+        /* ── Theme: light ───────────────────────────────────────── */
+        html.light {
+          --c-bg:        oklch(0.965 0.005 48);
+          --c-surf:      oklch(0.915 0.006 48);
+          --c-surf2:     oklch(0.87 0.007 48);
+          --c-border:    oklch(0.80 0.007 48);
+          --c-borderHi:  oklch(0.68 0.009 48);
+          --c-text:      oklch(0.14 0.006 35);
+          --c-sub:       oklch(0.32 0.007 35);
+          --c-muted:     oklch(0.50 0.009 48);
+          --c-dim:       oklch(0.68 0.007 48);
+          --c-accent:    oklch(0.60 0.21 48);
+          --c-accentLo:  oklch(0.60 0.21 48 / 0.08);
+          --c-accentMid: oklch(0.60 0.21 48 / 0.15);
+          --c-accentBrd: oklch(0.60 0.21 48 / 0.30);
+          --c-accentHi:  oklch(0.60 0.21 48 / 0.50);
+          --c-base:      oklch(0.98 0.003 35);
+          --c-nav:       oklch(0.965 0.005 48 / 0.92);
+          --c-sect:      oklch(0.945 0.005 48);
+          --c-mq:        oklch(0.955 0.005 48);
+          --c-glow-a:    oklch(0.60 0.21 48 / 0.10);
+          --c-glow-b:    oklch(0.60 0.21 48 / 0.06);
+          --c-glow-ph:   oklch(0.60 0.21 48 / 0.20);
+          --c-ph-shadow: oklch(0.55 0.005 48 / 0.20);
+          --c-ph-ring:   oklch(0.75 0.005 48 / 0.50);
+        }
+
         html { scroll-behavior: smooth; }
 
         /* ── Hero entrance animations ─────────────────────────── */
@@ -171,14 +225,26 @@ export default function LandingPage() {
 
         /* ── Interactive states ──────────────────────────────── */
         .btn-p { transition: transform 130ms ease-out, box-shadow 130ms ease-out; }
-        .btn-p:hover { box-shadow: 0 0 0 3px oklch(0.67 0.19 48 / 0.22); }
+        .btn-p:hover { box-shadow: 0 0 0 3px var(--c-accentMid); }
         .btn-p:active { transform: scale(0.97); }
         .btn-g { transition: transform 130ms ease-out, border-color 130ms ease-out, color 130ms ease-out; }
-        .btn-g:hover { border-color: oklch(0.67 0.19 48 / 0.55) !important; color: oklch(0.84 0.005 48) !important; }
+        .btn-g:hover { border-color: var(--c-accentHi) !important; color: var(--c-sub) !important; }
         .btn-g:active { transform: scale(0.97); }
         .nav-lnk { transition: color 140ms ease-out; }
-        .nav-lnk:hover { color: oklch(0.80 0.005 48) !important; }
+        .nav-lnk:hover { color: var(--c-sub) !important; }
         .tag-lnk { transition: color 140ms ease-out, background 140ms ease-out; }
+
+        /* ── Theme toggle ────────────────────────────────────── */
+        .tt-sun { display: none; }
+        .tt-moon { display: flex; }
+        html.light .tt-sun { display: flex; }
+        html.light .tt-moon { display: none; }
+        .theme-toggle { transition: color 140ms ease-out; }
+        .theme-toggle:hover { color: var(--c-sub) !important; }
+
+        /* ── Grain ───────────────────────────────────────────── */
+        .grain { opacity: 0.028; mix-blend-mode: screen; }
+        html.light .grain { opacity: 0.018; mix-blend-mode: multiply; }
 
         /* ── Layout ──────────────────────────────────────────── */
         .hero-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
@@ -206,14 +272,13 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {/* Grain texture — fixed, pointer-none, low opacity */}
+      {/* Grain texture — fixed, pointer-none */}
       <div
         aria-hidden
+        className="grain"
         style={{
           position: "fixed", inset: 0, zIndex: 9999, pointerEvents: "none",
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          opacity: 0.028,
-          mixBlendMode: "screen",
         }}
       />
 
@@ -221,7 +286,7 @@ export default function LandingPage() {
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
         borderBottom: `1px solid ${c.border}`,
-        background: `oklch(0.09 0.005 35 / 0.90)`,
+        background: "var(--c-nav)",
         backdropFilter: "blur(20px) saturate(1.5)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 2rem", height: 56,
@@ -247,17 +312,20 @@ export default function LandingPage() {
           })}
         </div>
 
-        <Link href="/r/test" className="btn-p" style={{
-          padding: "0.4375rem 1.125rem", background: c.accent, borderRadius: 6,
-          color: c.base, fontSize: "0.875rem", fontWeight: 700,
-          textDecoration: "none", letterSpacing: "-0.015em",
-          display: "inline-flex", alignItems: "center", gap: 6,
-        }}>
-          Try demo
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+          <ThemeToggle />
+          <Link href="/r/test" className="btn-p" style={{
+            padding: "0.4375rem 1.125rem", background: c.accent, borderRadius: 6,
+            color: c.base, fontSize: "0.875rem", fontWeight: 700,
+            textDecoration: "none", letterSpacing: "-0.015em",
+            display: "inline-flex", alignItems: "center", gap: 6,
+          }}>
+            Try demo
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+        </div>
       </nav>
 
       {/* ── HERO ──────────────────────────────────────────────── */}
@@ -270,13 +338,13 @@ export default function LandingPage() {
         <div aria-hidden style={{
           position: "absolute", top: "8%", right: "3%",
           width: 720, height: 720,
-          background: `radial-gradient(ellipse at center, oklch(0.67 0.19 48 / 0.065) 0%, transparent 62%)`,
+          background: "radial-gradient(ellipse at center, var(--c-glow-a) 0%, transparent 62%)",
           pointerEvents: "none",
         }} />
         <div aria-hidden style={{
           position: "absolute", bottom: "0%", left: "4%",
           width: 480, height: 480,
-          background: `radial-gradient(ellipse at center, oklch(0.67 0.19 48 / 0.04) 0%, transparent 65%)`,
+          background: "radial-gradient(ellipse at center, var(--c-glow-b) 0%, transparent 65%)",
           pointerEvents: "none",
         }} />
 
@@ -359,7 +427,7 @@ export default function LandingPage() {
                   {/* Glow behind phone */}
                   <div aria-hidden style={{
                     position: "absolute", inset: -70,
-                    background: `radial-gradient(ellipse at center, oklch(0.67 0.19 48 / 0.15) 0%, transparent 60%)`,
+                    background: "radial-gradient(ellipse at center, var(--c-glow-ph) 0%, transparent 60%)",
                     pointerEvents: "none",
                   }} />
 
@@ -368,33 +436,33 @@ export default function LandingPage() {
                     width: 252, height: 506,
                     background: c.surf, border: `1.5px solid ${c.border}`,
                     borderRadius: 38, position: "relative", overflow: "hidden",
-                    boxShadow: `0 48px 96px oklch(0.04 0.002 35 / 0.8), 0 0 0 1px oklch(0.27 0.006 35 / 0.5)`,
+                    boxShadow: "0 48px 96px var(--c-ph-shadow), 0 0 0 1px var(--c-ph-ring)",
                   }}>
-                    {/* Dynamic island */}
+                    {/* Dynamic island — always dark, lives on a dark screen */}
                     <div style={{
                       position: "absolute", top: 13, left: "50%", transform: "translateX(-50%)",
-                      zIndex: 10, width: 80, height: 7, background: c.base, borderRadius: 4,
+                      zIndex: 10, width: 80, height: 7, background: "oklch(0.06 0.003 35)", borderRadius: 4,
                     }} />
 
-                    {/* Screen */}
+                    {/* Screen — always dark, simulates camera/AR view */}
                     <div style={{
                       position: "absolute", inset: 0,
-                      background: `linear-gradient(162deg, oklch(0.108 0.005 35) 0%, oklch(0.082 0.004 35) 100%)`,
+                      background: "linear-gradient(162deg, oklch(0.108 0.005 35) 0%, oklch(0.082 0.004 35) 100%)",
                       display: "flex", flexDirection: "column",
                     }}>
-                      {/* Status bar */}
+                      {/* Status bar — hardcoded dark, sits on dark screen */}
                       <div style={{
                         padding: "10px 20px 0", display: "flex",
                         justifyContent: "space-between", alignItems: "center",
                         flexShrink: 0, zIndex: 5,
                       }}>
-                        <span style={{ fontSize: "0.5625rem", color: c.dim, letterSpacing: "-0.01em", fontFamily: fd }}>9:41</span>
+                        <span style={{ fontSize: "0.5625rem", color: "oklch(0.34 0.005 48)", letterSpacing: "-0.01em", fontFamily: fd }}>9:41</span>
                         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
                           {[0, 1, 2].map(i => (
-                            <div key={i} style={{ width: 3, height: 3 + i * 1.5, background: c.dim, borderRadius: 1 }} />
+                            <div key={i} style={{ width: 3, height: 3 + i * 1.5, background: "oklch(0.34 0.005 48)", borderRadius: 1 }} />
                           ))}
-                          <div style={{ width: 10, height: 5, border: `1px solid ${c.dim}`, borderRadius: 1, marginLeft: 3 }}>
-                            <div style={{ width: "70%", height: "100%", background: c.dim, borderRadius: 1 }} />
+                          <div style={{ width: 10, height: 5, border: "1px solid oklch(0.34 0.005 48)", borderRadius: 1, marginLeft: 3 }}>
+                            <div style={{ width: "70%", height: "100%", background: "oklch(0.34 0.005 48)", borderRadius: 1 }} />
                           </div>
                         </div>
                       </div>
@@ -449,7 +517,7 @@ export default function LandingPage() {
       <div className="mq-wrap" style={{
         borderTop: `1px solid ${c.border}`,
         borderBottom: `1px solid ${c.border}`,
-        background: `oklch(0.10 0.005 35)`,
+        background: "var(--c-mq)",
         padding: "0.875rem 0",
       }}>
         <div className="mq-track">
@@ -518,7 +586,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ──────────────────────────────────────────── */}
-      <section id="features" style={{ borderTop: `1px solid ${c.border}`, padding: "7rem 2rem", background: `oklch(0.095 0.005 35)` }}>
+      <section id="features" style={{ borderTop: `1px solid ${c.border}`, padding: "7rem 2rem", background: "var(--c-sect)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
           <ScrollReveal style={{ marginBottom: "4.5rem" }}>
