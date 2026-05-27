@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WebAR Menu
 
-## Getting Started
+B2B SaaS platform for restaurants. Guests scan a QR code and see dishes in 3D/AR directly in the browser — no app required.
 
-First, run the development server:
+**Live:** https://ar-menu.verunsky.pp.ua
+
+---
+
+## How it works
+
+1. Restaurant admin uploads a GLB model and names the dish
+2. A unique QR code is generated per dish
+3. Guest scans the QR → dish appears floating on the table in AR
+
+Works on iOS Safari (AR Quick Look / USDZ) and Android Chrome (WebXR). No app install, no plugin.
+
+---
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) + TypeScript |
+| Database | Prisma + SQLite |
+| AR/3D | `<model-viewer>` by Google |
+| Fonts | Syne + DM Sans via `next/font` |
+| Auth | NextAuth.js (credentials) |
+| Uploads | formidable → `/public/uploads/` |
+
+---
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma migrate dev
+npx ts-node prisma/seed.ts   # seed admin user
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copy `.env.example` to `.env` and fill in the values.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## URL structure
 
-## Learn More
+```
+/                                      → landing page
+/r/[slug]                              → redirects to first active dish
+/r/[slug]/[dish_slug]                  → AR viewer (guest-facing)
+/admin                                 → login
+/admin/dashboard                       → restaurant list
+/admin/restaurants/[id]                → edit restaurant + dishes
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Production deploy (VPS / Docker)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd /home/admin/docker/webar-menu && git pull && docker build -t webar-menu . && docker stop webar-menu && docker rm webar-menu && docker run -d --name webar-menu --restart unless-stopped -p 3006:3006 --env-file /home/admin/docker/webar-menu/.env.production -v /home/admin/docker/webar-menu/data:/data -v /home/admin/docker/webar-menu/uploads:/app/public/uploads webar-menu
+```
 
-## Deploy on Vercel
+See `CLAUDE.md` for full deployment notes, nginx template, and known gotchas.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment variables
+
+```env
+DATABASE_URL=file:/data/prod.db
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=https://your-domain.com
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD_HASH=...   # bcrypt hash
+NODE_ENV=production
+```
