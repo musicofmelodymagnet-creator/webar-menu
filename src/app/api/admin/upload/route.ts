@@ -14,9 +14,14 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
+  const MAX_SIZE = type === "logo" ? 5 * 1024 * 1024 : 50 * 1024 * 1024; // 5 MB logos, 50 MB models
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json({ error: `File too large (max ${MAX_SIZE / 1024 / 1024} MB)` }, { status: 413 });
+  }
+
   const ext = extname(file.name).toLowerCase();
   const allowed = type === "logo"
-    ? [".jpg", ".jpeg", ".png", ".webp", ".svg"]
+    ? [".jpg", ".jpeg", ".png", ".webp"]
     : [".glb", ".gltf", ".usdz"];
 
   if (!allowed.includes(ext)) {
@@ -33,5 +38,3 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ url: `/uploads/${subdir}/${filename}` });
 }
-
-export const config = { api: { bodyParser: false } };
