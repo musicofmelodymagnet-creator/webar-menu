@@ -10,6 +10,7 @@ interface Props {
 interface ModelViewerElement extends HTMLElement {
   activateAR: () => void;
   canActivateAR: boolean;
+  exposure: number;
 }
 
 declare global {
@@ -26,6 +27,21 @@ export function ArViewer({ modelUrl, usdzUrl, dishName }: Props) {
     if (window.__mvLoaded) return;
     window.__mvLoaded = true;
     import("@google/model-viewer");
+  }, []);
+
+  // Boost exposure in AR — real-world lighting is dimmer than neutral HDR env
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    function onArStatus(e: Event) {
+      const el = ref.current;
+      if (!el) return;
+      const status = (e as CustomEvent<{ status: string }>).detail.status;
+      if (status === "session-started") el.exposure = 1.8;
+      else if (status === "not-presenting") el.exposure = 1.0;
+    }
+    el.addEventListener("ar-status", onArStatus);
+    return () => el.removeEventListener("ar-status", onArStatus);
   }, []);
 
   function handleToggle(next: "ar" | "3d") {
@@ -80,9 +96,9 @@ export function ArViewer({ modelUrl, usdzUrl, dishName }: Props) {
         camera-controls=""
         auto-rotate=""
         auto-rotate-delay="500"
-        shadow-intensity="1"
-        shadow-softness="1"
-        exposure="1"
+        tone-mapping="commerce"
+        shadow-intensity="0"
+        exposure="1.0"
         environment-image="neutral"
         style={{
           display: "block",
