@@ -82,7 +82,7 @@ export function DishSlider({ dishes, activeDishSlug, restaurantSlug }: Props) {
           transition: "color 200ms",
           lineHeight: 1,
         }}>
-          {expanded ? "свернуть" : "все блюда"}
+          {expanded ? "close" : "all dishes"}
         </span>
       </div>
 

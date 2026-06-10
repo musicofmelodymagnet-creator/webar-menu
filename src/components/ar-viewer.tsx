@@ -71,9 +71,9 @@ export function ArViewer({ modelUrl, usdzUrl, dishName }: Props) {
 
   const hint =
     arHint === "https"
-      ? "AR требует HTTPS. Запустите сервер с --experimental-https или откройте через ngrok."
+      ? "AR requires HTTPS. Open the site over a secure connection."
       : arHint === "unsupported"
-      ? "AR не поддерживается на этом устройстве или браузере."
+      ? "AR is not supported on this device or browser."
       : null;
 
   return (
