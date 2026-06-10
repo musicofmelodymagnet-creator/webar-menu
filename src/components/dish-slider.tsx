@@ -41,33 +41,49 @@ export function DishSlider({ dishes, activeDishSlug, restaurantSlug }: Props) {
       paddingBottom: "env(safe-area-inset-bottom, 0)",
       overflow: "hidden",
       transition: "max-height 300ms cubic-bezier(0.4, 0, 0.2, 1)",
-      maxHeight: expanded ? "62vh" : "132px",
+      maxHeight: expanded ? "62vh" : "148px",
       display: "flex",
       flexDirection: "column",
       flexShrink: 0,
     }}>
-      {/* Drag handle */}
+      {/* Drag handle — full-width tap zone, min 44px tall */}
       <div
         onPointerDown={onHandlePointerDown}
         onPointerMove={onHandlePointerMove}
         onPointerUp={onHandlePointerUp}
         style={{
           display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           justifyContent: "center",
-          padding: "0.5rem 1rem 0.3rem",
+          gap: "0.3rem",
+          padding: "0.625rem 1rem 0.375rem",
+          minHeight: 44,
           cursor: "ns-resize",
           flexShrink: 0,
           touchAction: "none",
           userSelect: "none",
+          WebkitUserSelect: "none",
         }}
       >
         <div style={{
-          width: 32,
+          width: 36,
           height: 4,
           borderRadius: 2,
-          background: expanded ? "oklch(0.38 0.005 35)" : "oklch(0.28 0.005 35)",
+          background: expanded ? "oklch(0.42 0.005 35)" : "oklch(0.32 0.005 35)",
           transition: "background 200ms",
         }} />
+        <span style={{
+          fontSize: "0.625rem",
+          fontWeight: 500,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: expanded ? "oklch(0.42 0.008 48)" : "oklch(0.48 0.010 48)",
+          transition: "color 200ms",
+          lineHeight: 1,
+        }}>
+          {expanded ? "свернуть" : "все блюда"}
+        </span>
       </div>
 
       {/* Collapsed: horizontal scroll */}
