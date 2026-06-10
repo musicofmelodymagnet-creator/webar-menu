@@ -83,7 +83,7 @@ export default async function DishViewerPage({ params }: Props) {
       </header>
 
       {/* AR Viewport */}
-      <ArViewer modelUrl={dish.modelUrl} usdzUrl={dish.usdzUrl} dishName={dish.name} />
+      <ArViewer key={dish.id} modelUrl={dish.modelUrl} usdzUrl={dish.usdzUrl} dishName={dish.name} />
 
       {/* Dish name */}
       <div style={{
