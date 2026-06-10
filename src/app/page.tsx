@@ -316,7 +316,7 @@ export default function LandingPage() {
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
           <ThemeToggle />
-          <Link href="/r/test" className="btn-p" style={{
+          <Link href="/r/demo-restaurant" className="btn-p" style={{
             padding: "0.4375rem 1.125rem", background: c.accent, borderRadius: 6,
             color: c.base, fontSize: "0.875rem", fontWeight: 700,
             textDecoration: "none", letterSpacing: "-0.015em",
@@ -384,7 +384,7 @@ export default function LandingPage() {
               </p>
 
               <div className="ha4" style={{ display: "flex", gap: "0.875rem", flexWrap: "wrap", alignItems: "center" }}>
-                <Link href="/r/test" className="btn-p" style={{
+                <Link href="/r/demo-restaurant" className="btn-p" style={{
                   padding: "0.75rem 1.625rem", background: c.accent, borderRadius: 8,
                   color: c.base, fontWeight: 700, fontSize: "0.9375rem",
                   textDecoration: "none", letterSpacing: "-0.02em",
@@ -782,7 +782,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            <Link href="/r/test" className="nav-lnk" style={{ color: c.muted, fontSize: "0.8125rem", textDecoration: "none", letterSpacing: "-0.01em" }}>
+            <Link href="/r/demo-restaurant" className="nav-lnk" style={{ color: c.muted, fontSize: "0.8125rem", textDecoration: "none", letterSpacing: "-0.01em" }}>
               Live demo
             </Link>
             <a href={`mailto:${CONTACT_EMAIL}`} className="nav-lnk" style={{ color: c.muted, fontSize: "0.8125rem", textDecoration: "none", letterSpacing: "-0.01em" }}>
