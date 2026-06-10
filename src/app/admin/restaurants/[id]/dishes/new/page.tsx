@@ -12,6 +12,8 @@ export default function NewDishPage() {
   const [slug, setSlug] = useState("");
   const [slugManual, setSlugManual] = useState(false);
   const [glbFile, setGlbFile] = useState<File | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [order, setOrder] = useState("0");
   const [saving, setSaving] = useState(false);
   const [savingStatus, setSavingStatus] = useState("");
@@ -23,7 +25,14 @@ export default function NewDishPage() {
   function handleName(v: string) { setName(v); if (!slugManual) setSlug(toSlug(v)); }
   function handleSlug(v: string) { setSlugManual(true); setSlug(toSlug(v)); }
 
-  async function uploadFile(file: File, type: "model" | "logo") {
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setPhotoFile(f);
+    setPhotoPreview(URL.createObjectURL(f));
+  }
+
+  async function uploadFile(file: File, type: "model" | "logo" | "photo") {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("type", type);
@@ -54,11 +63,17 @@ export default function NewDishPage() {
         usdzUrl = await uploadFile(usdzFile, "model");
       }
 
+      let photoUrl: string | null = null;
+      if (photoFile) {
+        setSavingStatus("Uploading photo…");
+        photoUrl = await uploadFile(photoFile, "photo");
+      }
+
       setSavingStatus("Saving…");
       const res = await fetch(`/api/admin/restaurants/${id}/dishes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, slug, modelUrl, usdzUrl, order: Number(order) }),
+        body: JSON.stringify({ name, slug, modelUrl, usdzUrl, photoUrl, order: Number(order) }),
       });
       if (!res.ok) { const j = await res.json(); throw new Error(j.error ?? "Failed"); }
       router.push(`/admin/restaurants/${id}`);
@@ -102,6 +117,45 @@ export default function NewDishPage() {
               Slider order
             </label>
             <input className="field" type="number" value={order} onChange={e => setOrder(e.target.value)} style={{ maxWidth: 120 }} />
+          </div>
+
+          {/* Photo */}
+          <div>
+            <label style={{ display: "block", color: "oklch(0.65 0.007 252)", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.5rem" }}>
+              Preview photo
+              <span style={{ color: "oklch(0.44 0.006 252)", fontWeight: 400, marginLeft: 6 }}>— shows in dish slider</span>
+            </label>
+            <label style={{ cursor: "pointer", display: "inline-block" }}>
+              <div style={{
+                width: 96, height: 72,
+                borderRadius: 8,
+                border: `1px dashed ${photoPreview ? "oklch(0.58 0.22 260)" : "oklch(0.33 0.006 252)"}`,
+                background: photoPreview ? "transparent" : "oklch(0.23 0.007 252)",
+                overflow: "hidden",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {photoPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photoPreview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <rect x="2" y="5" width="18" height="14" rx="2" stroke="oklch(0.48 0.007 252)" strokeWidth="1.3"/>
+                    <circle cx="11" cy="12" r="3.5" stroke="oklch(0.48 0.007 252)" strokeWidth="1.3"/>
+                    <path d="M8 5l1-2h4l1 2" stroke="oklch(0.48 0.007 252)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <input type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: "none" }} onChange={handlePhotoChange} />
+            </label>
+            {photoPreview && (
+              <button
+                type="button"
+                onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                style={{ marginLeft: 8, verticalAlign: "middle", background: "none", border: "none", color: "oklch(0.52 0.007 252)", fontSize: "0.75rem", cursor: "pointer", padding: "0.25rem" }}
+              >
+                Remove
+              </button>
+            )}
           </div>
 
           <div>

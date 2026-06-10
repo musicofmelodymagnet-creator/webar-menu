@@ -14,13 +14,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { error } = await requireAdmin();
   if (error) return error;
   const { id } = await params;
-  const { name, slug, modelUrl, usdzUrl, order } = await req.json();
+  const { name, slug, modelUrl, usdzUrl, photoUrl, order } = await req.json();
   if (!name || !slug || !modelUrl) {
     return NextResponse.json({ error: "name, slug, modelUrl required" }, { status: 400 });
   }
   try {
     const dish = await prisma.dish.create({
-      data: { restaurantId: id, name, slug, modelUrl, usdzUrl, order: order ?? 0 },
+      data: { restaurantId: id, name, slug, modelUrl, usdzUrl, photoUrl, order: order ?? 0 },
     });
     return NextResponse.json(dish, { status: 201 });
   } catch {

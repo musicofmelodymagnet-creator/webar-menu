@@ -14,13 +14,14 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
-  const MAX_SIZE = type === "logo" ? 5 * 1024 * 1024 : 50 * 1024 * 1024; // 5 MB logos, 50 MB models
+  const isImage = type === "logo" || type === "photo";
+  const MAX_SIZE = isImage ? 5 * 1024 * 1024 : 50 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
     return NextResponse.json({ error: `File too large (max ${MAX_SIZE / 1024 / 1024} MB)` }, { status: 413 });
   }
 
   const ext = extname(file.name).toLowerCase();
-  const allowed = type === "logo"
+  const allowed = isImage
     ? [".jpg", ".jpeg", ".png", ".webp"]
     : [".glb", ".gltf", ".usdz"];
 
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Invalid file type: ${ext}` }, { status: 400 });
   }
 
-  const subdir = type === "logo" ? "logos" : "models";
+  const subdir = type === "logo" ? "logos" : type === "photo" ? "photos" : "models";
   const uploadDir = join(process.cwd(), "public", "uploads", subdir);
   await mkdir(uploadDir, { recursive: true });
 
