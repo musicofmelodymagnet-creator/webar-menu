@@ -11,6 +11,10 @@ interface Props {
   restaurantSlug: string;
 }
 
+// iOS Safari blocks Quick Look from re-opening in the same soft-navigation session.
+// Hard navigation resets the browser context so Quick Look works on every dish.
+const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 export function DishSlider({ dishes, activeDishSlug, restaurantSlug }: Props) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
@@ -98,7 +102,10 @@ export function DishSlider({ dishes, activeDishSlug, restaurantSlug }: Props) {
               <button
                 key={dish.id}
                 className="dish-slide"
-                onClick={() => router.push(`/r/${restaurantSlug}/${dish.slug}`)}
+                onClick={() => {
+                  const url = `/r/${restaurantSlug}/${dish.slug}`;
+                  if (isIOS) window.location.assign(url); else router.push(url);
+                }}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -172,7 +179,10 @@ export function DishSlider({ dishes, activeDishSlug, restaurantSlug }: Props) {
             return (
               <button
                 key={dish.id}
-                onClick={() => router.push(`/r/${restaurantSlug}/${dish.slug}`)}
+                onClick={() => {
+                  const url = `/r/${restaurantSlug}/${dish.slug}`;
+                  if (isIOS) window.location.assign(url); else router.push(url);
+                }}
                 style={{
                   display: "flex",
                   flexDirection: "column",
