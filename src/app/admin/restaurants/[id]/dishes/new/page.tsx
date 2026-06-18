@@ -12,6 +12,7 @@ export default function NewDishPage() {
   const [slug, setSlug] = useState("");
   const [slugManual, setSlugManual] = useState(false);
   const [glbFile, setGlbFile] = useState<File | null>(null);
+  const [usdzFile, setUsdzFile] = useState<File | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [order, setOrder] = useState("0");
@@ -58,20 +59,23 @@ export default function NewDishPage() {
       let usdzUrl: string | null = null;
       const { convertGlbToUsdz } = await import("@/lib/glb-to-usdz");
       const usdzBuffer = await convertGlbToUsdz(glbFile);
-      if (usdzBuffer) {
+      if (usdzFile) {
+        setSavingStatus("Uploading USDZ for iOS…");
+        usdzUrl = await uploadFile(usdzFile, "model");
+      } else if (usdzBuffer) {
         const MB50 = 50 * 1024 * 1024;
         if (usdzBuffer.byteLength > MB50) {
-          setWarning(`iOS AR skipped — converted USDZ is ${(usdzBuffer.byteLength / 1024 / 1024).toFixed(0)} MB (limit 50 MB). Reduce texture size in Blender to enable iOS Quick Look.`);
+          setWarning(`iOS AR skipped — converted USDZ is ${(usdzBuffer.byteLength / 1024 / 1024).toFixed(0)} MB (limit 50 MB). Upload a .usdz from Blender instead.`);
         } else {
           try {
-            const usdzFile = new File(
+            const autoUsdz = new File(
               [usdzBuffer],
               glbFile.name.replace(/\.glb$/i, ".usdz"),
               { type: "model/vnd.usdz+zip" }
             );
-            usdzUrl = await uploadFile(usdzFile, "model");
+            usdzUrl = await uploadFile(autoUsdz, "model");
           } catch (e: unknown) {
-            setWarning(`iOS AR skipped — ${e instanceof Error ? e.message : "USDZ upload failed"}. Android AR still works.`);
+            setWarning(`iOS AR skipped — ${e instanceof Error ? e.message : "USDZ upload failed"}. Upload a .usdz from Blender instead.`);
           }
         }
       }
@@ -195,7 +199,7 @@ export default function NewDishPage() {
                       {(glbFile.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                     <div style={{ color: "oklch(0.55 0.14 145)", fontSize: "0.75rem", marginTop: 4 }}>
-                      USDZ for iOS will be generated automatically
+                      {usdzFile ? `+ ${usdzFile.name}` : "USDZ for iOS will be generated automatically"}
                     </div>
                   </div>
                 ) : (
@@ -211,6 +215,25 @@ export default function NewDishPage() {
               </div>
               <input type="file" accept=".glb" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) setGlbFile(f); }} />
             </label>
+          </div>
+
+          <div>
+            <label style={{ display: "block", color: "oklch(0.65 0.007 252)", fontSize: "0.8125rem", fontWeight: 500, marginBottom: "0.375rem" }}>
+              iOS AR (.usdz)
+              <span style={{ color: "oklch(0.44 0.006 252)", fontWeight: 400, marginLeft: 6 }}>— optional, export from Blender if auto-convert fails</span>
+            </label>
+            <label style={{ cursor: "pointer" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "0.4375rem 0.75rem", background: "oklch(0.25 0.007 252)", border: "1px solid oklch(0.33 0.006 252)", borderRadius: 6, color: usdzFile ? "oklch(0.70 0.15 260)" : "oklch(0.65 0.007 252)", fontSize: "0.8125rem", fontWeight: 500 }}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v8M2 5l4-4 4 4M1 10h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {usdzFile ? usdzFile.name : "Upload .usdz"}
+              </span>
+              <input type="file" accept=".usdz" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) setUsdzFile(f); }} />
+            </label>
+            {usdzFile && (
+              <button type="button" onClick={() => setUsdzFile(null)} style={{ marginLeft: 8, verticalAlign: "middle", background: "none", border: "none", color: "oklch(0.52 0.007 252)", fontSize: "0.75rem", cursor: "pointer", padding: "0.25rem" }}>
+                Remove
+              </button>
+            )}
           </div>
 
           {error && <p style={{ color: "oklch(0.62 0.22 27)", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
