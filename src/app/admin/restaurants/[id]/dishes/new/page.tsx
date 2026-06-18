@@ -18,6 +18,7 @@ export default function NewDishPage() {
   const [saving, setSaving] = useState(false);
   const [savingStatus, setSavingStatus] = useState("");
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
 
   function toSlug(v: string) {
     return v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -37,14 +38,17 @@ export default function NewDishPage() {
     fd.append("file", file);
     fd.append("type", type);
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload failed");
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error((json as { error?: string }).error ?? "Upload failed");
+    }
     return (await res.json()).url as string;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!glbFile) { setError("A .glb model file is required"); return; }
-    setSaving(true); setError("");
+    setSaving(true); setError(""); setWarning("");
 
     try {
       setSavingStatus("Uploading 3D model…");
@@ -55,12 +59,21 @@ export default function NewDishPage() {
       const { convertGlbToUsdz } = await import("@/lib/glb-to-usdz");
       const usdzBuffer = await convertGlbToUsdz(glbFile);
       if (usdzBuffer) {
-        const usdzFile = new File(
-          [usdzBuffer],
-          glbFile.name.replace(/\.glb$/i, ".usdz"),
-          { type: "model/vnd.usdz+zip" }
-        );
-        usdzUrl = await uploadFile(usdzFile, "model");
+        const MB50 = 50 * 1024 * 1024;
+        if (usdzBuffer.byteLength > MB50) {
+          setWarning(`iOS AR skipped — converted USDZ is ${(usdzBuffer.byteLength / 1024 / 1024).toFixed(0)} MB (limit 50 MB). Reduce texture size in Blender to enable iOS Quick Look.`);
+        } else {
+          try {
+            const usdzFile = new File(
+              [usdzBuffer],
+              glbFile.name.replace(/\.glb$/i, ".usdz"),
+              { type: "model/vnd.usdz+zip" }
+            );
+            usdzUrl = await uploadFile(usdzFile, "model");
+          } catch (e: unknown) {
+            setWarning(`iOS AR skipped — ${e instanceof Error ? e.message : "USDZ upload failed"}. Android AR still works.`);
+          }
+        }
       }
 
       let photoUrl: string | null = null;
@@ -201,6 +214,7 @@ export default function NewDishPage() {
           </div>
 
           {error && <p style={{ color: "oklch(0.62 0.22 27)", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
+          {warning && <p style={{ color: "oklch(0.72 0.14 85)", fontSize: "0.8125rem", margin: 0 }}>{warning}</p>}
 
           <div style={{ display: "flex", gap: "0.75rem", paddingTop: "0.25rem", alignItems: "center" }}>
             <button type="submit" disabled={saving} style={{ padding: "0.5625rem 1.125rem", background: saving ? "oklch(0.44 0.15 260)" : "oklch(0.58 0.22 260)", border: "none", borderRadius: 6, color: "oklch(0.97 0.003 260)", fontSize: "0.875rem", fontWeight: 600, cursor: saving ? "not-allowed" : "pointer", letterSpacing: "-0.01em" }}>

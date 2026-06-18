@@ -16,6 +16,7 @@ export function DishEditor({ dish, restaurantId }: { dish: Dish; restaurantId: s
   const [saving, setSaving] = useState(false);
   const [savingStatus, setSavingStatus] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
+  const [saveWarn, setSaveWarn] = useState("");
   const [error, setError] = useState("");
 
   function toSlug(v: string) {
@@ -27,7 +28,10 @@ export function DishEditor({ dish, restaurantId }: { dish: Dish; restaurantId: s
     fd.append("file", file);
     fd.append("type", type);
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-    if (!res.ok) throw new Error("Upload failed");
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error((json as { error?: string }).error ?? "Upload failed");
+    }
     return (await res.json()).url as string;
   }
 
@@ -39,7 +43,7 @@ export function DishEditor({ dish, restaurantId }: { dish: Dish; restaurantId: s
   }
 
   async function save() {
-    setSaving(true); setError(""); setSaveMsg(""); setSavingStatus("");
+    setSaving(true); setError(""); setSaveMsg(""); setSaveWarn(""); setSavingStatus("");
     try {
       let modelUrl = dish.modelUrl;
       let usdzUrl = dish.usdzUrl;
@@ -53,12 +57,23 @@ export function DishEditor({ dish, restaurantId }: { dish: Dish; restaurantId: s
         const { convertGlbToUsdz } = await import("@/lib/glb-to-usdz");
         const usdzBuffer = await convertGlbToUsdz(glbFile);
         if (usdzBuffer) {
-          const usdzFile = new File(
-            [usdzBuffer],
-            glbFile.name.replace(/\.glb$/i, ".usdz"),
-            { type: "model/vnd.usdz+zip" }
-          );
-          usdzUrl = await uploadFile(usdzFile, "model");
+          const MB50 = 50 * 1024 * 1024;
+          if (usdzBuffer.byteLength > MB50) {
+            setSaveWarn(`iOS AR skipped — converted USDZ is ${(usdzBuffer.byteLength / 1024 / 1024).toFixed(0)} MB (limit 50 MB). Reduce texture size in Blender to enable iOS Quick Look.`);
+            usdzUrl = null;
+          } else {
+            try {
+              const usdzFile = new File(
+                [usdzBuffer],
+                glbFile.name.replace(/\.glb$/i, ".usdz"),
+                { type: "model/vnd.usdz+zip" }
+              );
+              usdzUrl = await uploadFile(usdzFile, "model");
+            } catch (e: unknown) {
+              setSaveWarn(`iOS AR skipped — ${e instanceof Error ? e.message : "USDZ upload failed"}. Android AR still works.`);
+              usdzUrl = null;
+            }
+          }
         }
       }
 
@@ -192,6 +207,7 @@ export function DishEditor({ dish, restaurantId }: { dish: Dish; restaurantId: s
       </div>
 
       {error && <p style={{ color: "oklch(0.62 0.22 27)", fontSize: "0.8125rem", margin: 0 }}>{error}</p>}
+      {saveWarn && <p style={{ color: "oklch(0.72 0.14 85)", fontSize: "0.8125rem", margin: 0 }}>{saveWarn}</p>}
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <button onClick={save} disabled={saving} style={{ padding: "0.5rem 1rem", background: saving ? "oklch(0.44 0.15 260)" : "oklch(0.58 0.22 260)", border: "none", borderRadius: 6, color: "oklch(0.97 0.003 260)", fontSize: "0.875rem", fontWeight: 600, cursor: saving ? "not-allowed" : "pointer" }}>
