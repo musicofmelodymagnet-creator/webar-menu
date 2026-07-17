@@ -54,6 +54,10 @@ yarn-error.log*
 *.doc
 *.pdf
 
+# local test models and SSH credentials
+/ssh/
+/test models/
+
 # vercel
 .vercel
 

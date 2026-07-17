@@ -8,7 +8,15 @@
       "Bash(node \"C:/Users/vety/.claude/skills/impeccable/scripts/load-context.mjs\")",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "Bash(npm run *)",
-      "mcp__plugin_playwright_playwright__browser_console_messages"
+      "mcp__plugin_playwright_playwright__browser_console_messages",
+      "mcp__blender__get_scene_info",
+      "mcp__blender__execute_blender_code",
+      "Bash(sshpass -p 'Z0p@8sem!' ssh -o StrictHostKeyChecking=no vety@185.181.165.99 'sudo cat /usr/local/hestia/data/templates/web/nginx/3006_ar-menu.stpl')",
+      "Bash(ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=yes vety@185.181.165.99 'sudo cat /usr/local/hestia/data/templates/web/nginx/3006_ar-menu.stpl')",
+      "Bash(py --version)",
+      "Bash(where python *)",
+      "Bash(py -c \"import paramiko\")",
+      "PowerShell($glb = Get-Item \"D:\\\\Claude\\\\ar-menu\\\\test models\\\\scan_fixed_2k.glb\"; $usdz = Get-Item \"D:\\\\Claude\\\\ar-menu\\\\test models\\\\scan_fixed_2k.usdz\"; \"GLB: {0:F1} MB\" -f \\($glb.Length/1MB\\); \"USDZ: {0:F1} MB\" -f \\($usdz.Length/1MB\\))"
     ]
   }
 }
